@@ -2,18 +2,50 @@
 //  NVDSP.h
 //  NVDSP
 //
-//  Created by Yakov Shteffen on 26/04/2019.
-//  Copyright © 2019 BlackBricks. All rights reserved.
+//  Created by Bart Olsthoorn on 13/05/2012.
+//  Copyright (c) 2012 - 2014 Bart Olsthoorn
+//  MIT licensed, see license.txt
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <Accelerate/Accelerate.h>
 
-//! Project version number for NVDSP.
-FOUNDATION_EXPORT double NVDSPVersionNumber;
+@interface NVDSP : NSObject {
+    float zero, one;
 
-//! Project version string for NVDSP.
-FOUNDATION_EXPORT const unsigned char NVDSPVersionString[];
+    float samplingRate;
 
-// In this header, you should import all the public headers of your framework using statements like #import <NVDSP/PublicHeader.h>
+    float *gInputKeepBuffer[2];
+    float *gOutputKeepBuffer[2];
+
+    float omega, omegaS, omegaC, alpha;
+ 
+    float coefficients[5];
+ 
+    float a0, a1, a2, b0, b1, b2;
+}
+
+- (id) initWithSamplingRate:(float)sr;
+
+#pragma mark - Setters
+- (void) setCoefficients;
 
 
+#pragma mark - Effects
+- (void) filterContiguousData: (float *)data numFrames:(UInt32)numFrames channel:(UInt32)channel;
+- (void) filterData:(float *)data numFrames:(UInt32)numFrames numChannels:(UInt32)numChannels;
+
+- (void) applyGain:(float *)data length:(vDSP_Length)length gain:(float)gain;
+
+
+#pragma mark - Etc
+- (void) intermediateVariables: (float)Fc Q: (float)Q;
+- (void) deinterleave: (float *)data left: (float*) left right: (float*) right length: (vDSP_Length)length;
+- (void) interleave: (float *)data left: (float*) left right: (float*) right length: (vDSP_Length)length;
+- (void) mono: (float *)data left: (float*) left right: (float*) right length: (vDSP_Length)length;
+
+#pragma mark - Debug
+- (void) logCoefficients;
+- (void) stabilityWarning;
+
+@end
